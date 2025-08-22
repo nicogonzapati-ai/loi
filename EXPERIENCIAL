@@ -1,0 +1,205 @@
+import java.util.Scanner;
+
+public class EXPERIENCIAL3 {
+
+    // Se declaran los arreglos para almacenar los datos de los productos y las ventas
+    static String[] codigosProducto = new String[100];
+    static String[] descripcionesProducto = new String[100];
+    static String[] tallasProducto = new String[100];
+    static String[] coloresProducto = new String[100];
+    static double[] preciosCosto = new double[100];
+    static double[] preciosVenta = new double[100];
+    static int[] stockProductos = new int[100];
+    static int totalProductos = 0; // Contador de productos registrados
+
+    // Arreglo para almacenar el total de ventas por cada mes del año
+    static double[] ventasMensuales = new double[12];
+
+    static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        int opcion;
+
+        // Se inicializan todas las ventas mensuales en 0
+        for (int i = 0; i < 12; i++) {
+            ventasMensuales[i] = 0.0;
+        }
+
+        do {
+            // Se muestra el menú principal al usuario
+            mostrarMenu();
+            opcion = scanner.nextInt();
+            scanner.nextLine(); // Se consume el salto de línea
+
+            switch (opcion) {
+                case 1:
+                    registrarProducto();
+                    break;
+                case 2:
+                    registrarVenta();
+                    break;
+                case 3:
+                    calcularVentasMensuales();
+                    break;
+                case 4:
+                    identificarMesMayorVenta();
+                    break;
+                case 5:
+                    identificarMesMenorVenta();
+                    break;
+                case 6:
+                    System.out.println("Saliendo del sistema...");
+                    break;
+                default:
+                    System.out.println("Opción no válida. Intente de nuevo.");
+                    break;
+            }
+        } while (opcion != 6);
+    }
+
+    public static void mostrarMenu() {
+        System.out.println("\n--- Sistema de Ventas de Ropa ---");
+        System.out.println("1. Registrar producto");
+        System.out.println("2. Registrar venta");
+        System.out.println("3. Calcular ventas mensuales");
+        System.out.println("4. Identificar mes con mayor venta");
+        System.out.println("5. Identificar mes con menor venta");
+        System.out.println("6. Salir");
+        System.out.print("Seleccione una opción: ");
+    }
+
+    public static void registrarProducto() {
+        if (totalProductos >= 100) {
+            System.out.println("No se pueden registrar más productos. Límite alcanzado.");
+            return;
+        }
+
+        System.out.print("Ingrese el código del producto: ");
+        codigosProducto[totalProductos] = scanner.nextLine();
+
+        System.out.print("Ingrese la descripción del producto: ");
+        descripcionesProducto[totalProductos] = scanner.nextLine();
+
+        System.out.print("Ingrese la talla: ");
+        tallasProducto[totalProductos] = scanner.nextLine();
+
+        System.out.print("Ingrese el color: ");
+        coloresProducto[totalProductos] = scanner.nextLine();
+
+        System.out.print("Ingrese el precio de costo: ");
+        preciosCosto[totalProductos] = scanner.nextDouble();
+
+        System.out.print("Ingrese el precio de venta: ");
+        preciosVenta[totalProductos] = scanner.nextDouble();
+
+        System.out.print("Ingrese la cantidad en stock: ");
+        stockProductos[totalProductos] = scanner.nextInt();
+        scanner.nextLine(); // Consumir el salto de línea
+
+        totalProductos++;
+        System.out.println("Producto registrado exitosamente.");
+    }
+
+    public static void registrarVenta() {
+        System.out.print("Ingrese el número del mes de la venta (1-12): ");
+        int mes = scanner.nextInt();
+        scanner.nextLine();
+
+        if (mes < 1 || mes > 12) {
+            System.out.println("Número de mes inválido.");
+            return;
+        }
+
+        System.out.print("Ingrese el código del producto vendido: ");
+        String codigoVenta = scanner.nextLine();
+
+        System.out.print("Ingrese la cantidad vendida: ");
+        int cantidadVendida = scanner.nextInt();
+        scanner.nextLine();
+
+        // Buscar el producto por su código
+        int indiceProducto = buscarProductoPorCodigo(codigoVenta);
+
+        if (indiceProducto != -1) {
+            // Se valida si hay suficiente stock
+            if (stockProductos[indiceProducto] >= cantidadVendida) {
+                // Se actualiza el stock
+                stockProductos[indiceProducto] -= cantidadVendida;
+                
+                // Se calcula el total de la venta y se acumula
+                double totalVenta = preciosVenta[indiceProducto] * cantidadVendida;
+                ventasMensuales[mes - 1] += totalVenta;
+
+                System.out.println("Venta de " + cantidadVendida + " unidades de " + descripcionesProducto[indiceProducto] + " registrada para el mes " + mes + ".");
+            } else {
+                System.out.println("Stock insuficiente para el producto " + descripcionesProducto[indiceProducto] + ".");
+            }
+        } else {
+            System.out.println("Producto no encontrado.");
+        }
+    }
+
+    // Método para buscar el índice de un producto por su código
+    public static int buscarProductoPorCodigo(String codigo) {
+        for (int i = 0; i < totalProductos; i++) {
+            if (codigosProducto[i].equals(codigo)) {
+                return i;
+            }
+        }
+        return -1; // Retorna -1 si el producto no se encuentra
+    }
+    
+    // El resto de los métodos (calcularVentasMensuales, identificarMesMayorVenta, etc.)
+    // no necesitan cambios, ya que ahora el registro de ventas les provee los datos correctos.
+    
+    public static void calcularVentasMensuales() {
+        System.out.print("Ingrese el número del mes (1-12) para ver las ventas: ");
+        int mes = scanner.nextInt();
+        scanner.nextLine();
+
+        if (mes < 1 || mes > 12) {
+            System.out.println("Número de mes inválido.");
+            return;
+        }
+
+        System.out.println("El total de ventas para el mes " + mes + " es: " + ventasMensuales[mes - 1]);
+    }
+
+    public static void identificarMesMayorVenta() {
+        double maxVentas = -1;
+        int mesMayorVenta = -1;
+
+        for (int i = 0; i < 12; i++) {
+            if (ventasMensuales[i] > maxVentas) {
+                maxVentas = ventasMensuales[i];
+                mesMayorVenta = i + 1;
+            }
+        }
+        
+        if (maxVentas > 0) {
+            System.out.println("El mes con mayor volumen de ventas es el mes " + mesMayorVenta + " con un total de " + maxVentas + ".");
+        } else {
+            System.out.println("Aún no se han registrado ventas.");
+        }
+    }
+
+    public static void identificarMesMenorVenta() {
+        double minVentas = -1;
+        int mesMenorVenta = -1;
+
+        for (int i = 0; i < 12; i++) {
+            if (ventasMensuales[i] > 0) {
+                if (minVentas == -1 || ventasMensuales[i] < minVentas) {
+                    minVentas = ventasMensuales[i];
+                    mesMenorVenta = i + 1;
+                }
+            }
+        }
+
+        if (minVentas != -1) {
+            System.out.println("El mes con menor volumen de ventas es el mes " + mesMenorVenta + " con un total de " + minVentas + ".");
+        } else {
+            System.out.println("Aún no se han registrado ventas.");
+        }
+    }
+}
