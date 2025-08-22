@@ -1,0 +1,168 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Clase principal que contiene el método main y la lógica del sistema
+public class SistemaGestion {
+
+    // Clase Estudiante (anidada dentro de SistemaGestion)
+    private static class Estudiante {
+        private String nombre;
+        private String identificacion;
+        private String direccion;
+        private String fechaNacimiento;
+        private ArrayList<Double> calificaciones;
+
+        public Estudiante(String nombre, String identificacion, String direccion, String fechaNacimiento) {
+            this.nombre = nombre;
+            this.identificacion = identificacion;
+            this.direccion = direccion;
+            this.fechaNacimiento = fechaNacimiento;
+            this.calificaciones = new ArrayList<>();
+        }
+
+        public String getIdentificacion() {
+            return identificacion;
+        }
+
+        public String getNombre() {
+            return nombre;
+        }
+
+        public ArrayList<Double> getCalificaciones() {
+            return calificaciones;
+        }
+
+        public void agregarCalificacion(double nota) {
+            this.calificaciones.add(nota);
+        }
+
+        public void mostrarInfo() {
+            System.out.println("------------------------------------");
+            System.out.println("Nombre: " + this.nombre);
+            System.out.println("ID: " + this.identificacion);
+            System.out.println("Direccion: " + this.direccion);
+            System.out.println("Fecha de Nacimiento: " + this.fechaNacimiento);
+        }
+    }
+
+    // Atributos y métodos de la clase principal SistemaGestion
+    private static ArrayList<Estudiante> listaEstudiantes = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+    private static final double NOTA_MINIMA_APROBAR = 3.5;
+
+    public static void main(String[] args) {
+        int opcion;
+
+        do {
+            mostrarMenu();
+            opcion = scanner.nextInt();
+            scanner.nextLine(); // Consumir el salto de línea
+
+            switch (opcion) {
+                case 1:
+                    registrarNuevoEstudiante();
+                    break;
+                case 2:
+                    registrarCalificaciones();
+                    break;
+                case 3:
+                    listarEstudiantes();
+                    break;
+                case 4:
+                    System.out.println("Saliendo del programa...");
+                    break;
+                default:
+                    System.out.println("Opcion no valida. Intente de nuevo.");
+            }
+        } while (opcion != 4);
+    }
+
+    private static void mostrarMenu() {
+        System.out.println("\n--- Sistema de Gestion de Estudiantes ---");
+        System.out.println("1. Registrar nuevo estudiante");
+        System.out.println("2. Registrar calificaciones y verificar estado");
+        System.out.println("3. Listar estudiantes");
+        System.out.println("4. Salir");
+        System.out.print("Ingrese una opcion: ");
+    }
+
+    private static void registrarNuevoEstudiante() {
+        System.out.println("\n--- Registrar Nuevo Estudiante ---");
+        System.out.print("Ingrese el nombre: ");
+        String nombre = scanner.nextLine();
+        System.out.print("Ingrese la identificacion: ");
+        String id = scanner.nextLine();
+        System.out.print("Ingrese la direccion: ");
+        String direccion = scanner.nextLine();
+        System.out.print("Ingrese la fecha de nacimiento (dd/mm/aaaa): ");
+        String fechaNac = scanner.nextLine();
+
+        Estudiante nuevoEstudiante = new Estudiante(nombre, id, direccion, fechaNac);
+        listaEstudiantes.add(nuevoEstudiante);
+        System.out.println("¡Estudiante registrado exitosamente!");
+    }
+
+    private static void registrarCalificaciones() {
+        System.out.println("\n--- Registrar Calificaciones ---");
+        System.out.print("Ingrese la identificacion del estudiante: ");
+        String idBuscado = scanner.nextLine();
+
+        Estudiante estudiante = buscarEstudiantePorID(idBuscado);
+
+        if (estudiante != null) {
+            System.out.println("Estudiante encontrado: " + estudiante.getNombre());
+            System.out.print("¿Cuántas materias desea registrar?: ");
+            int numMaterias = scanner.nextInt();
+            scanner.nextLine();
+
+            for (int i = 0; i < numMaterias; i++) {
+                System.out.print("Ingrese la nota de la materia " + (i + 1) + ": ");
+                double nota = scanner.nextDouble();
+                estudiante.agregarCalificacion(nota);
+                
+                if (nota >= NOTA_MINIMA_APROBAR) {
+                    System.out.println("-> ¡Aprobo!");
+                } else {
+                    System.out.println("-> ¡Reprobo!");
+                }
+            }
+        } else {
+            System.out.println("Estudiante no encontrado.");
+        }
+    }
+
+    private static void listarEstudiantes() {
+        System.out.println("\n--- Lista de Estudiantes ---");
+        if (listaEstudiantes.isEmpty()) {
+            System.out.println("No hay estudiantes registrados.");
+            return;
+        }
+
+        for (Estudiante est : listaEstudiantes) {
+            est.mostrarInfo();
+            System.out.println("Calificaciones:");
+            ArrayList<Double> notas = est.getCalificaciones();
+            if (notas.isEmpty()) {
+                System.out.println(" - No hay calificaciones registradas.");
+            } else {
+                for (double nota : notas) {
+                    System.out.print(" - " + nota);
+                    if (nota >= NOTA_MINIMA_APROBAR) {
+                        System.out.println(" (Aprobo)");
+                    } else {
+                        System.out.println(" (Reprobo)");
+                    }
+                }
+            }
+        }
+    }
+
+    private static Estudiante buscarEstudiantePorID(String id) {
+        for (Estudiante est : listaEstudiantes) {
+            if (est.getIdentificacion().equals(id)) {
+                return est;
+            }
+        }
+        return null;
+    }
+}
